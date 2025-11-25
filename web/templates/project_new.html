@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Create new story</h1>
+
+<form method="post" action="/projects/create">
+  <label>
+    Folder name (used under <code>stories/</code>):
+    <input type="text" name="folder_name" required>
+  </label>
+
+  <label>
+    Title:
+    <input type="text" name="title" required>
+  </label>
+
+  <label>
+    Author:
+    <input type="text" name="author">
+  </label>
+
+  <label>
+    Tone (optional):
+    <input type="text" name="tone">
+  </label>
+
+  <button type="submit">Create story</button>
+</form>
+
+{% endblock %}

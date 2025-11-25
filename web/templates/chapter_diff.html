@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Diff: {{ chapter_id }} ({{ kind }} v{{ v1 }} → v{{ v2 }})</h1>
+
+<p>
+  <a href="/projects/{{ project_name }}/chapters/{{ chapter_id }}/versions">
+    Back to versions
+  </a>
+</p>
+
+<div style="overflow-x: auto; font-size: 0.9rem;">
+  {{ diff_html | safe }}
+</div>
+
+{% endblock %}

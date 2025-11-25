@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ chapter_id }} ({{ kind }}) v{{ version }}</h1>
+
+<pre>{{ text }}</pre>
+
+<a href="/projects/{{ project_name }}/chapters/{{ chapter_id }}/versions/{{ kind }}">Back to versions</a>
+{% endblock %}

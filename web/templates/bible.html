@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Story Bible – {{ project_name }}</h1>
+
+<h2>Characters</h2>
+<p>
+  <a href="/projects/{{ project_name }}/bible/characters">View / edit all characters</a>
+  |
+  <a href="/projects/{{ project_name }}/bible/characters/new">Add character</a>
+</p>
+{% set characters = bible["characters"] %}
+{% if characters %}
+  <ul>
+    {% for name, c in characters.items() %}
+      <li>
+        <strong>{{ c.get("name", name) }}</strong>
+        [<a href="/projects/{{ project_name }}/bible/characters/{{ name }}">edit</a>]<br>
+
+        {% if c.get("bio") %}
+          <div>{{ c.get("bio") }}</div>
+        {% endif %}
+
+        <div>
+          <em>Location:</em>
+          {{ c.get("location")
+             or c.get("current_state", {}).get("location")
+             or "—" }}
+        </div>
+
+        {% if c.get("tags") %}
+          <div>
+            <em>Tags:</em> {{ ", ".join(c.get("tags", [])) }}
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No characters in bible yet.</p>
+{% endif %}
+
+<hr>
+
+<h2>Locations</h2>
+<p>
+  <a href="/projects/{{ project_name }}/bible/locations">View / edit all locations</a>
+  |
+  <a href="/projects/{{ project_name }}/bible/locations/new">Add location</a>
+</p>
+{% set locations = bible["locations"] %}
+{% if locations %}
+  <ul>
+    {% for name, loc in locations.items() %}
+      <li>
+        <strong>{{ loc.get("name", name) }}</strong>
+        [<a href="/projects/{{ project_name }}/bible/locations/{{ name }}">edit</a>]<br>
+
+        {% if loc.get("description") %}
+          <div>{{ loc.get("description") }}</div>
+        {% endif %}
+
+        {% if loc.get("tags") %}
+          <div>
+            <em>Tags:</em> {{ ", ".join(loc.get("tags", [])) }}
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No locations in bible yet.</p>
+{% endif %}
+
+<hr>
+
+<h2>Items</h2>
+<p>
+  <a href="/projects/{{ project_name }}/bible/items">View / edit all items</a>
+  |
+  <a href="/projects/{{ project_name }}/bible/items/new">Add item</a>
+</p>
+{% set items = bible["items"] %}
+{% if items %}
+  <ul>
+    {% for name, item in items.items() %}
+      <li>
+        <strong>{{ item.get("name", name) }}</strong>
+        [<a href="/projects/{{ project_name }}/bible/items/{{ name }}">edit</a>]<br>
+
+        {% if item.get("description") %}
+          <div>{{ item.get("description") }}</div>
+        {% endif %}
+
+        <div>
+          <em>Location:</em>
+          {{ item.get("location") or "—" }}
+        </div>
+
+        {% if item.get("tags") %}
+          <div>
+            <em>Tags:</em> {{ ", ".join(item.get("tags", [])) }}
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No items in bible yet.</p>
+{% endif %}
+
+{% endblock %}

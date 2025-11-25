@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Items</h1>
+
+<p><a href="/projects/{{ project_name }}/bible/items/new">Add new item</a></p>
+
+{% if bible.items %}
+  <ul>
+    {% for name, it in bible.items.items() %}
+      <li>
+        <a href="/projects/{{ project_name }}/bible/items/{{ name }}"><strong>{{ name }}</strong></a>
+        – {{ it.description }}
+        {% if it.owner %}(owner: {{ it.owner }}){% endif %}
+        {% if it.location %}(location: {{ it.location }}){% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No items yet.</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Select model for: {{ cfg.title }}</h1>
+
+{% if error %}
+  <p style="color: red;">Error talking to LM Studio: {{ error }}</p>
+{% endif %}
+
+{% if models %}
+  <form method="post" action="/projects/{{ project_name }}/model/select">
+    <table border="1" cellpadding="4" cellspacing="0">
+      <tr>
+        <th></th>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Arch</th>
+        <th>State</th>
+        <th>Max context</th>
+      </tr>
+      {% for m in models %}
+        <tr>
+          <td>
+            <input
+              type="radio"
+              name="model_id"
+              value="{{ m.id }}"
+              {% if cfg.model_name == m.id %}checked{% endif %}
+            >
+          </td>
+          <td><code>{{ m.id }}</code></td>
+          <td>{{ m.type or '' }}</td>
+          <td>{{ m.arch or '' }}</td>
+          <td>{{ m.state or '' }}</td>
+          <td>{{ m.max_context_length or '' }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+
+    <p>
+      <button type="submit">Use selected model</button>
+    </p>
+  </form>
+{% else %}
+  <p>No models returned from LM Studio. Check that:</p>
+  <ul>
+    <li>The LM Studio server is running (Developer → Start Server).</li>
+    <li>You can reach <code>{{ LMSTUDIO_BASE_URL }}/v1/models</code> in your browser.</li>
+  </ul>
+{% endif %}
+
+{% endblock %}

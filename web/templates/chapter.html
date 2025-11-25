@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Chapter {{ chapter_id }}</h1>
+
+<h2>Outline</h2>
+<form method="post" action="/projects/{{ project_name }}/chapters/{{ chapter_id }}/outline">
+  <label>
+    Title:
+    <input type="text" name="title" value="{{ outline.title if outline else '' }}">
+  </label>
+
+  <label>
+    POV:
+    <input type="text" name="pov" value="{{ outline.pov if outline else '' }}">
+  </label>
+
+  <label>
+    Target word count:
+    <input type="number" name="target_word_count"
+           value="{{ outline.target_word_count if outline else 1800 }}">
+  </label>
+
+  <label>
+    Beats (one per line):
+    <textarea name="beats">{% if outline %}{{ '\n'.join(outline.beats) }}{% endif %}</textarea>
+  </label>
+
+  <label>
+    Must include (one per line):
+    <textarea name="must_include">{% if outline %}{{ '\n'.join(outline.must_include) }}{% endif %}</textarea>
+  </label>
+
+  <label>
+    Avoid (one per line):
+    <textarea name="avoid">{% if outline %}{{ '\n'.join(outline.avoid) }}{% endif %}</textarea>
+  </label>
+
+  <button type="submit">Save outline</button>
+</form>
+
+<h2>Actions</h2>
+<form style="display:inline" method="post" action="/projects/{{ project_name }}/chapters/{{ chapter_id }}/generate">
+  <button type="submit">Generate draft</button>
+</form>
+
+<form style="display:inline" method="post" action="/projects/{{ project_name }}/chapters/{{ chapter_id }}/summarise">
+  <button type="submit">Summarise chapter</button>
+</form>
+
+<form style="display:inline" method="post" action="/projects/{{ project_name }}/chapters/{{ chapter_id }}/rebuild_state">
+  <button type="submit">Rebuild state from this chapter</button>
+</form>
+
+<form style="display:inline" method="post" action="/projects/{{ project_name }}/chapters/{{ chapter_id }}/audio">
+  <button type="submit">Generate MP3</button>
+</form>
+
+<form style="display:inline" method="post" action="/projects/{{ project_name }}/chapters/{{ chapter_id }}/run_pipeline">
+  <button type="submit"><strong>Run full pipeline</strong></button>
+</form>
+
+<p>
+  <a href="/projects/{{ project_name }}/chapters/{{ chapter_id }}/versions">
+    View versions / diff
+  </a>
+</p>
+
+<h2>Summary</h2>
+<p>
+  <a href="/projects/{{ project_name }}/chapters/{{ chapter_id }}/summary">
+    View saved summary
+  </a>
+</p>
+
+<h2>Current text</h2>
+{% if text %}
+  <pre>{{ text }}</pre>
+{% else %}
+  <p>No text yet.</p>
+{% endif %}
+
+{% endblock %}

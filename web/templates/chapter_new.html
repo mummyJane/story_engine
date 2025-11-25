@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Add chapter</h1>
+
+<form method="post" action="/projects/{{ project_name }}/chapters/create">
+  <label>
+    Chapter ID:
+    <input type="text" name="chapter_id" value="{{ suggested_id }}">
+  </label>
+
+  <label>
+    Title:
+    <input type="text" name="title">
+  </label>
+
+  <label>
+    POV:
+    <input type="text" name="pov">
+  </label>
+
+  <label>
+    Target word count:
+    <input type="number" name="target_word_count" value="1800">
+  </label>
+
+  <button type="submit">Create chapter</button>
+</form>
+
+{% endblock %}

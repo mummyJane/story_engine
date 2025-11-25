@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Stories</h1>
+
+
+<p><a href="/projects/new">Create new story</a></p>
+
+{% if projects %}
+<ul>
+  {% for p in projects %}
+    <li><a href="/projects/{{ p }}/project">{{ p }}</a></li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p>No stories found. Use the CLI to create one in the <code>stories</code> folder.</p>
+{% endif %}
+
+{% endblock %}

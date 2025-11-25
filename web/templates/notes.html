@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Notes for this story</h1>
+
+<form method="post" action="/projects/{{ project_name }}/notes">
+  <label>
+    Notes (Markdown or plain text):
+    <textarea name="text">{{ text }}</textarea>
+  </label>
+
+  <button type="submit">Save notes</button>
+</form>
+
+{% endblock %}

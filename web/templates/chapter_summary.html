@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Summary for {{ chapter_id }}</h1>
+
+{% if summary %}
+  {% if summary.bullet_summary %}
+    <h2>Bullet summary</h2>
+    <ul>
+      {% for b in summary.bullet_summary %}
+        <li>{{ b }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h2>Raw JSON</h2>
+  <pre>{{ summary | tojson(indent=2) }}</pre>
+{% else %}
+  <p>No summary stored for this chapter yet. Run "Summarise chapter" or "Run full pipeline" first.</p>
+{% endif %}
+
+{% endblock %}

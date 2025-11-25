@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Versions for {{ chapter_id }}</h1>
+
+<h2>Draft versions</h2>
+{% if draft_versions %}
+  <table>
+    <tr>
+      <th>Version</th>
+      <th>Modified</th>
+      <th>Diff</th>
+    </tr>
+    {% for v in draft_versions %}
+      <tr>
+        <td>{{ v.version }}</td>
+        <td>{{ v.mtime | datetime }}</td>
+        <td>
+          {% if not loop.first %}
+            <a href="/projects/{{ project_name }}/chapters/{{ chapter_id }}/diff?kind=draft&v1={{ draft_versions[loop.index0 - 1].version }}&v2={{ v.version }}">
+              Diff with previous
+            </a>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No draft versions found.</p>
+{% endif %}
+
+<h2>Final versions</h2>
+{% if final_versions %}
+  <table>
+    <tr>
+      <th>Version</th>
+      <th>Modified</th>
+      <th>Diff</th>
+    </tr>
+    {% for v in final_versions %}
+      <tr>
+        <td>{{ v.version }}</td>
+        <td>{{ v.mtime | datetime }}</td>
+        <td>
+          {% if not loop.first %}
+            <a href="/projects/{{ project_name }}/chapters/{{ chapter_id }}/diff?kind=final&v1={{ final_versions[loop.index0 - 1].version }}&v2={{ v.version }}">
+              Diff with previous
+            </a>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No final versions found.</p>
+{% endif %}
+
+<h2>Custom diff</h2>
+<form method="get" action="/projects/{{ project_name }}/chapters/{{ chapter_id }}/diff">
+  <label>
+    Kind:
+    <select name="kind">
+      <option value="draft">draft</option>
+      <option value="final">final</option>
+    </select>
+  </label>
+  <label>
+    v1:
+    <input type="number" name="v1" required>
+  </label>
+  <label>
+    v2:
+    <input type="number" name="v2" required>
+  </label>
+  <button type="submit">Show diff</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ cfg.title }}</h1>
+<p>Author: {{ cfg.author }}</p>
+
+<p>
+  Model:
+  {% if cfg.model_name %}
+    <code>{{ cfg.model_name }}</code>
+  {% else %}
+    <em>using default ({{ DEFAULT_LMSTUDIO_MODEL }})</em>
+  {% endif %}
+  – <a href="/projects/{{ project_name }}/model">change</a>
+</p>
+
+<h2>Export</h2>
+<p>
+  <a href="/projects/{{ project_name }}/export/txt">Download TXT</a> |
+  <a href="/projects/{{ project_name }}/export/md">Download Markdown</a> |
+  <a href="/projects/{{ project_name }}/export/docx">Download DOCX</a> |
+  <a href="/projects/{{ project_name }}/export/campfire">Download Campfire JSON</a>
+</p>
+
+<h2>Chapters</h2>
+<p><a href="/projects/{{ project_name }}/chapters/new">Add chapter</a></p>
+
+{% if cfg.chapter_order %}
+  <ul>
+    {% for cid in cfg.chapter_order %}
+      <li><a href="/projects/{{ project_name }}/chapters/{{ cid }}">{{ cid }}</a></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No chapters defined yet. Use the CLI <code>create-chapter</code>.</p>
+{% endif %}
+{% endblock %}

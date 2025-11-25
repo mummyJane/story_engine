@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Locations</h1>
+
+<p><a href="/projects/{{ project_name }}/bible/locations/new">Add new location</a></p>
+
+{% if bible.locations %}
+  <ul>
+    {% for name, loc in bible.locations.items() %}
+      <li>
+        <a href="/projects/{{ project_name }}/bible/locations/{{ name }}"><strong>{{ name }}</strong></a>
+        – {{ loc.description }}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No locations yet.</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Timeline – {{ project_name }}</h1>
+
+<form method="post" action="/projects/{{ project_name }}/timeline/rebuild">
+  <button type="submit">Rebuild timeline from summaries</button>
+</form>
+
+{% if timeline.events %}
+  <table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Chapter</th>
+        <th>Title</th>
+        <th>Bullets</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ev in timeline.events %}
+        <tr>
+          <td>{{ ev.index }}</td>
+          <td>{{ ev.chapter_id }}</td>
+          <td>{{ ev.title }}</td>
+          <td>
+            {% if ev.bullets %}
+              <ul>
+                {% for b in ev.bullets %}
+                  <li>{{ b }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <em>No bullets</em>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No timeline events yet. Use the button above to rebuild the timeline from chapter summaries.</p>
+{% endif %}
+
+{% endblock %}

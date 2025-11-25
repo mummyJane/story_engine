@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Characters</h1>
+
+<p><a href="/projects/{{ project_name }}/bible/characters/new">Add new character</a></p>
+
+{% if bible.characters %}
+  <ul>
+    {% for name, c in bible.characters.items() %}
+      <li>
+        <a href="/projects/{{ project_name }}/bible/characters/{{ name }}"><strong>{{ name }}</strong></a>
+        – {{ c.bio }}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No characters yet.</p>
+{% endif %}
+
+{% endblock %}

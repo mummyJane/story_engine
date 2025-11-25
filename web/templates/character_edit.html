@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>
+  {% if record %}
+    Edit character – {{ name }}
+  {% else %}
+    Add character
+  {% endif %}
+</h1>
+
+<form method="post" action="/projects/{{ project_name }}/bible/characters/save">
+  <div>
+    <label for="name">Name:</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      value="{% if record %}{{ record.get('name', name) }}{% else %}{{ name }}{% endif %}"
+      required
+    >
+  </div>
+
+  <div style="margin-top: 1em;">
+    <label for="bio">Bio:</label><br>
+    <textarea id="bio" name="bio" rows="6" cols="80">{% if record %}{{ record.get("bio", "") }}{% endif %}</textarea>
+  </div>
+
+  <div style="margin-top: 1em;">
+    <label for="location">Location:</label>
+    <input
+      type="text"
+      id="location"
+      name="location"
+      value="{% if record %}{{ record.get('location', '') }}{% endif %}"
+    >
+  </div>
+
+  <div style="margin-top: 1em;">
+    <label for="tags">Tags (comma or newline separated):</label><br>
+    <textarea id="tags" name="tags" rows="3" cols="80">{% if record and record.get("tags") %}{{ ", ".join(record.get("tags", [])) }}{% endif %}</textarea>
+  </div>
+
+  <div style="margin-top: 1.5em;">
+    <button type="submit">Save</button>
+    <a href="/projects/{{ project_name }}/bible">Cancel</a>
+  </div>
+</form>
+{% endblock %}

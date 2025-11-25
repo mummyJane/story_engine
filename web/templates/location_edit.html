@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{% if record %}Edit location: {{ name }}{% else %}Add location{% endif %}</h1>
+
+<form method="post" action="/projects/{{ project_name }}/bible/locations/save">
+  <label>
+    Name:
+    <input type="text" name="name" value="{{ name }}">
+  </label>
+
+  <label>
+    Description:
+    <textarea name="description">{% if record %}{{ record.description }}{% endif %}</textarea>
+  </label>
+
+  <label>
+    Tags (comma or line separated):
+    <textarea name="tags">{% if record %}{{ ', '.join(record.tags) }}{% endif %}</textarea>
+  </label>
+
+  <button type="submit">Save</button>
+</form>
+
+{% endblock %}
