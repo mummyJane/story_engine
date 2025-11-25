@@ -11,7 +11,7 @@ from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
 from story_engine.io.project_repo import ProjectRepo
-from story_engine.io.schemas import ChapterOutline, CharacterRecord, CharacterState, LocationRecord, ItemRecord
+from story_engine.io.schemas import ChapterOutline
 from story_engine.llm.client import LLMClient
 from story_engine.generation.chapter_generator import ChapterGenerator
 from story_engine.generation.summariser import Summariser
@@ -128,7 +128,7 @@ def bible_view(request: Request, project_name: str):
 @app.get("/projects/{project_name}/bible/characters")
 def characters_list(request: Request, project_name: str):
     repo, _, _, _, _ = get_services(project_name)
-    bible = repo.load_bible()
+    bible = repo.load_bible() or {}
     return templates.TemplateResponse(
         "characters.html",
         {"request": request, "bible": bible, "project_name": project_name},
@@ -151,8 +151,9 @@ def new_character_form(request: Request, project_name: str):
 @app.get("/projects/{project_name}/bible/characters/{name}")
 def edit_character(request: Request, project_name: str, name: str):
     repo, _, _, _, _ = get_services(project_name)
-    bible = repo.load_bible()
-    rec = bible.characters.get(name)
+    bible = repo.load_bible() or {}
+    chars = bible.get("characters", {}) or {}
+    rec = chars.get(name)
     return templates.TemplateResponse(
         "character_edit.html",
         {
@@ -163,7 +164,6 @@ def edit_character(request: Request, project_name: str, name: str):
         },
     )
 
-
 @app.post("/projects/{project_name}/bible/characters/save")
 async def save_character(
     project_name: str,
@@ -173,7 +173,10 @@ async def save_character(
     location: str = Form(""),
 ):
     repo, _, _, _, _ = get_services(project_name)
-    bible = repo.load_bible()
+    bible = repo.load_bible() or {}
+
+    # Ensure the structure is present
+    chars = bible.setdefault("characters", {})
 
     tags_list = [
         t.strip()
@@ -182,17 +185,21 @@ async def save_character(
     ]
     loc = location.strip() or None
 
-    if name in bible.characters:
-        rec = bible.characters[name]
-        rec.bio = bio
-        rec.tags = tags_list
-        rec.current_state.location = loc
+    # Existing or new record
+    rec = chars.get(name, {})
+    rec["name"] = name
+    rec["bio"] = bio
+    rec["tags"] = tags_list
+    if loc is not None:
+        rec["location"] = loc
     else:
-        cs = CharacterState(location=loc)
-        rec = CharacterRecord(name=name, bio=bio, tags=tags_list, current_state=cs)
-        bible.characters[name] = rec
+        rec.pop("location", None)
 
+    chars[name] = rec
+
+    # Save back to bible.json (and any versioning logic in ProjectRepo)
     repo.save_bible(bible)
+
     return RedirectResponse(
         url=f"/projects/{project_name}/bible", status_code=303
     )
