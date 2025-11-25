@@ -7,7 +7,7 @@
 </form>
 
 {% if timeline.events %}
-  <table border="1" cellpadding="6" cellspacing="0">
+  <table border="1" cellpadding="6" cellspacing="0" style="margin-top: 1em;">
     <thead>
       <tr>
         <th>#</th>
@@ -38,7 +38,9 @@
     </tbody>
   </table>
 {% else %}
-  <p>No timeline events yet. Use the button above to rebuild the timeline from chapter summaries.</p>
+  <p style="margin-top: 1em;">
+    No timeline events yet. Use the button above to rebuild the timeline from chapter summaries.
+  </p>
 {% endif %}
 
 {% endblock %}

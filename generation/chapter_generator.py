@@ -239,7 +239,7 @@ class ChapterGenerator:
         # Call the LLM; your LLMClient should accept these kwargs
         text = self.llm.complete(
             prompt,
-            max_tokens=4096,
+            max_tokens=(32*1024),
             temperature=0.75,
         )
 

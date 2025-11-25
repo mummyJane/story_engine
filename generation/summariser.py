@@ -160,7 +160,7 @@ Chapter text:
 
         # 2) Build prompt + call LLM
         prompt = self.build_summary_prompt(chapter_id, text)
-        raw = self.llm.complete(prompt, max_tokens=2048, temperature=0.3)
+        raw = self.llm.complete(prompt, max_tokens=(32*1024), temperature=0.3)
 
         # 3) Parse JSON (robustly)
         try:

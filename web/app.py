@@ -374,14 +374,17 @@ async def save_item(
 # ---------------------------------------------------------------------------
 # Timeline
 # ---------------------------------------------------------------------------
-
 @app.get("/projects/{project_name}/timeline")
 def timeline_view(request: Request, project_name: str):
     repo, _, _, _, _ = get_services(project_name)
-    bible = repo.load_bible()
+    timeline = repo.load_timeline()  # should return {"events": [...]} or similar
     return templates.TemplateResponse(
         "timeline.html",
-        {"request": request, "timeline": bible.timeline, "project_name": project_name},
+        {
+            "request": request,
+            "timeline": timeline,
+            "project_name": project_name,
+        },
     )
 
 @app.post("/projects/{project_name}/timeline/rebuild")
