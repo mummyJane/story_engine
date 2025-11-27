@@ -622,42 +622,33 @@ async def chapter_audio(project_name: str, chapter_id: str):
         url=f"/projects/{project_name}/chapters/{chapter_id}", status_code=303
     )
 
-
 @app.post("/projects/{project_name}/chapters/{chapter_id}/run_pipeline")
 async def run_pipeline(project_name: str, chapter_id: str):
+    """
+    Simple pipeline for now:
+
+      1. Generate chapter text (draft).
+      2. Summarise chapter and apply summary directly to the bible.
+      3. Rebuild the timeline from all saved summaries.
+
+    This AVOIDS resetting the bible from scratch, so manual bible edits
+    (characters, locations, items) are preserved.
+    """
     repo, gen, summ, _, _ = get_services(project_name)
 
-    # Determine previous chapter in the configured order (if any)
-    cfg = repo.load_project_config()
-    order = getattr(cfg, "chapter_order", None) or []
-    prev_id = None
-    if chapter_id in order:
-        idx = order.index(chapter_id)
-        if idx > 0:
-            prev_id = order[idx - 1]
+    # 1) Generate chapter text (always as a draft)
+    gen.generate_chapter(chapter_id)
 
-    # Rebuild bible to the state just BEFORE this chapter,
-    # so generation sees only prior events, not future ones.
-    if prev_id:
-        summ.rebuild_state_from(prev_id)
-    else:
-        # No previous chapter: reset to an empty baseline bible
-        repo.save_bible({"characters": {}, "locations": {}, "items": {}})
+    # 2) Summarise and update bible in-place
+    #    (summarise_chapter already saves the summary JSON)
+    summ.summarise_chapter(chapter_id, apply_to_bible=True)
 
-    # Only generate if there isn't already a final version
-    final = repo.load_chapter_text(chapter_id, kind="final")
-    if not final:
-        gen.generate_chapter(chapter_id)
-
-    # Summarise without directly mutating the bible
-    summ.summarise_chapter(chapter_id, apply_to_bible=False)
-
-    # Rebuild bible state including this chapter and refresh the timeline
-    summ.rebuild_state_from(chapter_id)
+    # 3) Rebuild the timeline (purely from summaries)
     summ.rebuild_timeline()
 
     return RedirectResponse(
-        url=f"/projects/{project_name}/chapters/{chapter_id}", status_code=303
+        url=f"/projects/{project_name}/chapters/{chapter_id}",
+        status_code=303
     )
 
 

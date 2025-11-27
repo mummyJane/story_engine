@@ -343,43 +343,35 @@ Chapter text:
     # Rebuild state (bible) from chapter summaries
     # ------------------------------------------------------------------
 
-    def rebuild_state_from(self, up_to_chapter_id: Optional[str] = None) -> dict:
-        """Rebuild the bible from scratch by re-summarising chapters in order.
+    def rebuild_state_from(self, up_to_chapter_id: Optional[str] = None) -> int:
+        """
+        Rebuild the bible from chapter summaries, up to and including
+        up_to_chapter_id (if given). Returns the bible version number.
 
-        - Starts from an empty bible dict.
-        - For each chapter in project.chapter_order:
-            - If a saved summary exists, use it.
-            - Otherwise, call summarise_chapter(apply_to_bible=False).
-        - Applies each summary into the in-memory bible.
-        - Stops when it reaches up_to_chapter_id (if provided).
-        - Writes the rebuilt bible via repo.save_bible(bible).
+        If up_to_chapter_id is None, rebuilds from all summaries.
         """
         cfg = self.repo.load_project_config()
-        bible: dict = {"characters": {}, "locations": {}, "items": {}}
+        order = getattr(cfg, "chapter_order", None) or []
 
-        for cid in cfg.chapter_order:
-            # Try to load an existing summary if the repo supports it
-            data = None
-            if hasattr(self.repo, "load_chapter_summary"):
-                data = self.repo.load_chapter_summary(cid)
+        # Start from an empty bible
+        bible = self.repo.load_bible() or {}
+        bible.setdefault("characters", {})
+        bible.setdefault("locations", {})
+        bible.setdefault("items", {})
 
-            if data is not None:
-                try:
-                    summary = ChapterSummary(**data)
-                except Exception:
-                    summary = self.summarise_chapter(cid, apply_to_bible=False)
-            else:
-                summary = self.summarise_chapter(cid, apply_to_bible=False)
-
-            bible = self.apply_summary_to_bible(summary, bible)
-
+        for cid in order:
+            s = self.repo.load_chapter_summary(cid)
+            if not s:
+                continue
+            self.apply_summary_to_bible(bible, s)
             if up_to_chapter_id and cid == up_to_chapter_id:
                 break
 
-        self.repo.save_bible(bible)
-        return bible
+        # Save and get a new version number
+        version = self.repo.save_bible(bible)
+        return version
 
-        # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # Rebuild timeline from chapter summaries
     # ------------------------------------------------------------------
 

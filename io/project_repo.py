@@ -415,72 +415,69 @@ class ProjectRepo:
 
         return data
 
-    def save_bible(self, bible: Any) -> None:
+    def save_bible(self, bible: Dict[str, Any]) -> int:
         """
-        Save the bible JSON to bible/bible.json.
+        Save the bible as bible.json and a versioned snapshot bible_vN.json.
 
-        Accepts either:
-          - a dict with keys "characters", "locations", "items", or
-          - any object that can be converted via asdict()/dict().
+        Returns the version number N that now represents this bible state.
+        If nothing actually changed, returns the current latest version (may be 0).
         """
-        if isinstance(bible, dict):
-            data = bible
-        else:
-            # Try dataclass
-            try:
-                data = asdict(bible)
-            except Exception:
-                # Try pydantic-style dict()
-                if hasattr(bible, "model_dump"):
-                    data = bible.model_dump()
-                elif hasattr(bible, "dict"):
-                    data = bible.dict()
-                else:
-                    raise TypeError("Unsupported bible object type")
-
-        # Ensure basic structure
-        if not isinstance(data, dict):
-            raise TypeError("Bible must serialise to a dict")
-
-        data.setdefault("characters", {})
-        data.setdefault("locations", {})
-        data.setdefault("items", {})
-
         bible_dir = self.root / "bible"
         bible_dir.mkdir(parents=True, exist_ok=True)
-        canonical = bible_dir / "bible.json"
+        path = bible_dir / "bible.json"
 
-        new_text = json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True)
+        # Normalise structure
+        if not isinstance(bible, dict):
+            bible = {}
+        bible.setdefault("characters", {})
+        bible.setdefault("locations", {})
+        bible.setdefault("items", {})
 
-        latest_version = 0
-        if canonical.exists():
+        payload = bible
+        text = json.dumps(payload, indent=2, ensure_ascii=False)
+
+        # Compare to existing canonical to avoid useless new versions
+        current_version = self.get_latest_bible_version()
+        if path.exists():
             try:
-                existing_text = canonical.read_text(encoding="utf-8")
+                existing = path.read_text(encoding="utf-8")
             except Exception:
-                existing_text = ""
-            if existing_text == new_text:
-                # nothing changed; don't create new version
-                return
+                existing = ""
+            if existing == text:
+                # No actual change; keep existing version number
+                # (still ensure bible.json matches payload)
+                path.write_text(text, encoding="utf-8")
+                return current_version
 
-            # find highest bible_vN.json
-            pattern = re.compile(r"^bible_v(\d+)\.json$", re.IGNORECASE)
-            for p in bible_dir.iterdir():
-                if not p.is_file():
-                    continue
-                m = pattern.match(p.name)
-                if not m:
-                    continue
-                try:
-                    v = int(m.group(1))
-                except ValueError:
-                    continue
-                if v > latest_version:
-                    latest_version = v
+        # Content changed: bump version
+        new_version = current_version + 1
+        snap_path = bible_dir / f"bible_v{new_version}.json"
+        snap_path.write_text(text, encoding="utf-8")
+        path.write_text(text, encoding="utf-8")
+        return new_version
 
-        next_v = latest_version + 1
-        version_path = bible_dir / f"bible_v{next_v}.json"
-        version_path.write_text(new_text, encoding="utf-8")
-        canonical.write_text(new_text, encoding="utf-8")
+    def get_latest_bible_version(self) -> int:
+        """
+        Return the highest bible_vN.json version number, or 0 if none exist.
+        """
+        bible_dir = self.root / "bible"
+        if not bible_dir.exists():
+            return 0
+
+        best = 0
+        for p in bible_dir.iterdir():
+            if not p.is_file():
+                continue
+            m = re.match(r"^bible_v(\d+)\.json$", p.name)
+            if not m:
+                continue
+            try:
+                v = int(m.group(1))
+            except ValueError:
+                continue
+            if v > best:
+                best = v
+        return best
 
     # ------------------------------------------------------------------
     # Timeline (simple, can be expanded later)
