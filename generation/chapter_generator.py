@@ -226,23 +226,15 @@ class ChapterGenerator:
     # ------------------------------------------------------------------
     # Generation
     # ------------------------------------------------------------------
-
     def generate_chapter(self, chapter_id: str, kind: str = "draft") -> str:
-        """
-        Generate the chapter prose and save it as a versioned text file.
-
-        - kind: "draft" or "final" (default "draft"; aligns with summariser,
-          which looks for final then falls back to draft).
-        """
         prompt = self.build_prompt(chapter_id)
 
-        # Call the LLM; your LLMClient should accept these kwargs
+        # Use model-aware max_tokens from the client
         text = self.llm.complete(
             prompt,
-            max_tokens=(32*1024),
+            # no explicit max_tokens -> client picks largest safe value
             temperature=0.75,
         )
 
-        # Save as a new versioned file using the ProjectRepo helper
         self.repo.save_chapter_text(chapter_id, kind, text)
         return text
